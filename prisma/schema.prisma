@@ -1,0 +1,193 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─────────────────────────────────────────
+// Modelos requeridos por NextAuth (PrismaAdapter)
+// ─────────────────────────────────────────
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  image         String?
+  createdAt     DateTime  @default(now())
+
+  accounts    Account[]
+  sessions    Session[]
+  profile     UserProfile?
+  genreWeights UserGenreWeight[]
+  interactions UserContentInteraction[]
+  recommendations Recommendation[]
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// ─────────────────────────────────────────
+// Enums de la app
+// ─────────────────────────────────────────
+
+enum AvailableTime {
+  SHORT    // menos de 1h
+  MEDIUM   // 1-2 horas
+  LONG     // más de 2 horas
+  VARIABLE // depende del día
+}
+
+enum PrimaryMood {
+  RELAX  // desconectar y relajarse
+  HOOKED // que enganche
+  LEARN  // aprender o pensar
+  FUN    // reírse o pasar buen rato
+}
+
+enum ContentFormat {
+  MOVIE
+  SERIES
+  GAME
+  BOOK
+  ANIME
+}
+
+enum DurationProfile {
+  SHORT
+  MEDIUM
+  LONG
+}
+
+enum EffortRequired {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum InteractionStatus {
+  LIKED
+  DISLIKED
+  COMPLETED
+  PENDING
+  IGNORED
+}
+
+// ─────────────────────────────────────────
+// Modelos de la app
+// ─────────────────────────────────────────
+
+// Perfil base — resultado del onboarding
+model UserProfile {
+  id               String        @id @default(cuid())
+  userId           String        @unique
+  availableTime    AvailableTime
+  primaryMood      PrimaryMood
+  preferredFormats ContentFormat[]
+  platforms        String[]
+  updatedAt        DateTime      @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// Catálogo normalizado — contenido cacheado de APIs externas
+model Content {
+  id              String          @id @default(cuid())
+  externalId      String
+  sourceApi       String          // 'tmdb', 'rawg', 'google_books', 'anilist'
+  format          ContentFormat
+  title           String
+  description     String?         @db.Text
+  coverUrl        String?
+  genres          String[]
+  moodTags        String[]
+  durationProfile DurationProfile?
+  effortRequired  EffortRequired?
+  rating          Float?
+  releaseYear     Int?
+  fetchedAt       DateTime        @default(now())
+
+  interactions    UserContentInteraction[]
+  recommendations Recommendation[]
+
+  @@unique([externalId, sourceApi])
+}
+
+// Perfil dinámico — pesos por género, se ajustan con el feedback
+model UserGenreWeight {
+  id        String   @id @default(cuid())
+  userId    String
+  genre     String
+  weight    Float    @default(1.0)
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, genre])
+}
+
+// Historial de interacciones — cada like, dislike, completado...
+model UserContentInteraction {
+  id             String            @id @default(cuid())
+  userId         String
+  contentId      String
+  status         InteractionStatus
+  rating         Int?              // 1-5, solo si status = COMPLETED
+  dislikeReason  String?
+  interactedAt   DateTime          @default(now())
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  content Content @relation(fields: [contentId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, contentId])
+}
+
+// Historial de recomendaciones — qué se recomendó y si fue aceptado
+model Recommendation {
+  id              String   @id @default(cuid())
+  userId          String
+  contentId       String
+  reason          String   @db.Text
+  wasAccepted     Boolean?
+  recommendedAt   DateTime @default(now())
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  content Content @relation(fields: [contentId], references: [id], onDelete: Cascade)
+}
