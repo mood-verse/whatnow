@@ -1,0 +1,69 @@
+1) ¿QUÉ HACEN LOS ARCHIVOS auth.ts Y prisma.ts?
+
+a) prisma.ts — Cliente de Base de Datos (ORM)
+Este archivo configura y exporta una instancia singleton del cliente de Prisma, que es el ORM (Object-Relational Mapping)
+utilizado para interactuar con la base de datos PostgreSQL.
+
+¿Para qué sirve?
+Conexión a la BD: Crea una única instancia de PrismaClient que se reutiliza en toda la aplicación, evitando múltiples
+conexiones innecesarias y mejorando el rendimiento.
+
+- Singleton pattern: Usa globalThis para almacenar la instancia en desarrollo, asegurando que no se cree una nueva
+conexión en cada hot reload de Next.js.
+- Logging: Configura logs para desarrollo (muestra queries, errores y warnings) y solo errores en producción.
+
+Acceso a modelos: Permite acceder a todos los modelos definidos en el schema de Prisma (como User, UserProfile, etc.)
+para realizar operaciones CRUD (crear, leer, actualizar, eliminar) de manera type-safe.
+
+En resumen, es el puente entre tu código TypeScript y la base de datos, haciendo que las consultas sean seguras
+y eficientes.
+
+
+b) auth.ts — Configuración de Autenticación
+Este archivo configura NextAuth.js, una librería para manejar autenticación en aplicaciones Next.js.
+
+¿Para qué sirve?
+Proveedores de autenticación: Define cómo los usuarios pueden iniciar sesión. En este caso, usa CredentialsProvider para
+autenticación con email y contraseña (hasheada con bcrypt).
+
+- Integración con BD: Usa PrismaAdapter para que NextAuth almacene sesiones, cuentas y usuarios directamente en la base
+de datos PostgreSQL a través de Prisma.
+- Gestión de sesiones: Configura el uso de JWT (JSON Web Tokens) para mantener sesiones de usuario.
+- Callbacks: Incluye funciones para personalizar el comportamiento, como agregar el ID del usuario a la sesión.
+- Páginas: Define rutas como /login para redirigir a los usuarios no autenticados.
+
+En resumen, maneja todo el flujo de login, registro, logout y verificación de usuarios, integrándose perfectamente con
+el resto de la app.
+
+Relación entre ambos archivos:
+prisma.ts proporciona el cliente de BD que auth.ts necesita para consultar y actualizar usuarios/sesiones.
+Sin prisma.ts, auth.ts no podría verificar credenciales ni almacenar datos de autenticación.
+Juntos, permiten un sistema de autenticación completo y seguro, donde los usuarios pueden registrarse, iniciar sesión
+y mantener sesiones persistentes.
+
+Estos archivos siguen las mejores prácticas del stack (Next.js + Prisma + NextAuth) y están diseñados para ser
+reutilizables y escalables.
+
+
+
+2) CREACIÓN DE LA CARPETA generated
+Es el "código compilado" que usas en la app. Si modificas el schema, regenera con npx prisma generate para actualizar
+generated/
+
+
+
+3) LA CARPETA prisma DENTRO DE generated
+Esta carpeta contiene los archivos generados automáticamente por Prisma, no se editan manualmente.
+
+Contenido principal:
+- client.ts: El cliente de Prisma (la clase PrismaClient) que usas en prisma.ts para interactuar con la BD.
+- models.ts: Definiciones de tipos TypeScript para todos los modelos (ej. User, Content).
+- enums.ts: Tipos para enums definidos en el schema.
+
+Archivos internos (en internal/): Código generado para el funcionamiento interno del cliente.
+- Query engine: Binarios del motor de consultas de Prisma.
+
+¿Para qué sirve?
+- Proporciona tipos seguros y autocompletado en TypeScript para consultas a la BD.
+- Permite ejecutar operaciones CRUD sin escribir SQL manual.
+- Se regenera cada vez que cambias schema.prisma y ejecutas npx prisma generate.

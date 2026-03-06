@@ -2,6 +2,7 @@ import { NextAuthOptions } from "next-auth";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { prisma } from "@/lib/prisma";
+import bcrypt from "bcryptjs";
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
@@ -13,14 +14,16 @@ export const authOptions: NextAuthOptions = {
         password: { label: "Contraseña", type: "password" },
       },
       async authorize(credentials) {
-        // TODO Fase 1: implementar verificación de contraseña con bcrypt
         if (!credentials?.email || !credentials?.password) return null;
 
         const user = await prisma.user.findUnique({
           where: { email: credentials.email },
         });
 
-        if (!user) return null;
+        if (!user || !user.password) return null;
+
+        const isPasswordValid = await bcrypt.compare(credentials.password, user.password);
+        if (!isPasswordValid) return null;
 
         return user;
       },
