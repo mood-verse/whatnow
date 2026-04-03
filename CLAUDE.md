@@ -87,13 +87,21 @@ CLAUDE.md               → Este archivo
 - [x] `src/lib/auth.ts` — configuración NextAuth con PrismaAdapter y CredentialsProvider
 - [x] `.env.example` creado y documentado
 - [x] `.env` en `.gitignore`
+- [x] Crear `src/app/api/auth/[...nextauth]/route.ts` — endpoint de NextAuth
+- [x] Instalar `bcryptjs` y `@types/bcryptjs` para hashear contraseñas
+- [x] Crear API route `POST /api/auth/register` para registro de usuarios
+- [x] Página de registro `/src/app/register/page.tsx` con validaciones
+- [x] Página de login `/src/app/login/page.tsx`
+- [x] Página de onboarding multi-paso completa
+- [x] 4 componentes de steps para el onboarding (Anchors, Géneros, Disponibilidad, Mood)
+- [x] API `/api/onboarding/search-content` para buscar en TMDB y Google Books
+- [x] API `/api/onboarding/save-profile` para guardar el perfil del usuario
+- [x] Dashboard placeholder después del onboarding
 
 #### Pendiente (continuar desde aquí)
-- [ ] Crear `src/app/api/auth/[...nextauth]/route.ts` — endpoint de NextAuth
-- [ ] Instalar `bcryptjs` y `@types/bcryptjs` para hashear contraseñas
-- [ ] Crear API route `POST /api/auth/register` para registro de usuarios
 - [ ] Ejecutar `npx prisma migrate dev --name init` una vez configurado el `.env`
 - [ ] Verificar que NextAuth funciona con una página de login básica
+- [ ] Testear todo el flujo: registro → onboarding → dashboard
 
 ### Fases siguientes (no empezar hasta completar Fase 1)
 

@@ -10,9 +10,14 @@ export function CTASection() {
         <p className="text-lg text-zinc-600 dark:text-zinc-300">
           Únete a personas que ya no desperdician su entretenimiento
         </p>
-        <Link href="/signup" className="inline-block bg-gradient-to-r from-blue-500 to-purple-600 text-white px-10 py-4 rounded-lg font-semibold text-lg hover:shadow-xl transition">
-          Registrarse gratis
-        </Link>
+        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <Link href="/register" className="inline-block bg-gradient-to-r from-blue-500 to-purple-600 text-white px-10 py-4 rounded-lg font-semibold text-lg hover:shadow-xl transition">
+            Registrarse gratis
+          </Link>
+          <Link href="/onboarding-preview" className="inline-block bg-slate-200 dark:bg-slate-700 text-slate-900 dark:text-white px-10 py-4 rounded-lg font-semibold text-lg hover:bg-slate-300 dark:hover:bg-slate-600 transition">
+            Ver demo del onboarding
+          </Link>
+        </div>
       </div>
     </section>
   );

@@ -67,3 +67,36 @@ Archivos internos (en internal/): Código generado para el funcionamiento intern
 - Proporciona tipos seguros y autocompletado en TypeScript para consultas a la BD.
 - Permite ejecutar operaciones CRUD sin escribir SQL manual.
 - Se regenera cada vez que cambias schema.prisma y ejecutas npx prisma generate.
+
+
+
+
+
+
+
+
+****ÚLTIMA ACTUALIZACIÓN (03/04/2026)****
+
+1) Página para iniciar sesión
+2) Página para el registro
+3) El Onboarding una vez registrado (el localhost + /onboarding-preview para ver cómo quedaría).
+   
+   Validación hecha -> He hecho que solo deje darle a continuar si cumple los requisitos en cada
+   paso. Aunque le dé a siguiente, y luego al volver a un paso anterior quite algo, como no puede
+   darle a continuar, se queda tal como estaba, con lo ya elegido
+   
+
+Lo siguiente imagino que sería ya el registro y la base de datos.
+
+*EN RELACIÓN A LA BASE DE DATOS:
+Se necesita reemplazar con las credenciales reales de Supabase.
+
+La URL real de Supabase debe parecer algo así:
+postgresql://postgres:TuContraseñaAqui@db.xyzabc123.supabase.co:5432/postgres
+
+
+Para obtenerla de Supabase:
+1. https://supabase.com → selecciona tu proyecto
+2. Project Settings → Database
+3. Connection string → Selecciona URI en el dropdown
+4. Copia la URL completa
